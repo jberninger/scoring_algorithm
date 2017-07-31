@@ -1,0 +1,315 @@
+### scoring algorithm for the Thomas-Kilmann test
+# load the data
+tkci <- read.csv("~/Desktop/LA_County/tkci_test_062217/CSV/Sheet_1.csv")
+str(tkci)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(DT)
+library(data.table)
+# cut the answers into just the A or B code (take the first character in each string)
+tkci <- tkci %>% mutate(Q1 = substr(Q1, 1,1)) %>% mutate(Q2 = substr(Q2, 1,1)) %>%
+  mutate(Q3 = substr(Q3, 1,1)) %>% mutate(Q4 = substr(Q4, 1,1)) %>% mutate(Q5 = substr(Q5, 1,1)) %>%
+  mutate(Q6 = substr(Q6, 1,1)) %>% mutate(Q7 = substr(Q7, 1,1)) %>% mutate(Q8 = substr(Q8, 1,1)) %>%
+  mutate(Q9 = substr(Q9, 1,1)) %>% mutate(Q10 = substr(Q10, 1,1)) %>% mutate(Q11 = substr(Q11, 1,1)) %>%
+  mutate(Q12 = substr(Q12, 1,1)) %>% mutate(Q13 = substr(Q13, 1,1)) %>% mutate(Q14 = substr(Q14, 1,1)) %>%
+  mutate(Q15 = substr(Q15, 1,1)) %>% mutate(Q16 = substr(Q16, 1,1)) %>% mutate(Q17 = substr(Q17, 1,1)) %>%
+  mutate(Q18 = substr(Q18, 1,1)) %>% mutate(Q19 = substr(Q19, 1,1)) %>% mutate(Q20 = substr(Q20, 1,1)) %>%
+  mutate(Q21 = substr(Q21, 1,1)) %>% mutate(Q22 = substr(Q22, 1,1)) %>% mutate(Q23 = substr(Q23, 1,1)) %>%
+  mutate(Q24 = substr(Q24, 1,1)) %>% mutate(Q25 = substr(Q25, 1,1)) %>% mutate(Q26 = substr(Q26, 1,1)) %>%
+  mutate(Q27 = substr(Q27, 1,1)) %>% mutate(Q28 = substr(Q28, 1,1)) %>% mutate(Q29 = substr(Q29, 1,1)) %>%
+  mutate(Q30 = substr(Q30, 1,1))
+
+# now I want a blank scoring matrix
+# it will hav 5 columns (one for each category) and will have n rows (one for each respondent)
+scoring_matrix <- matrix(0, nrow = nrow(tkci), ncol = 5, 
+                         dimnames = list(c(), c("competitive", "collaborative", "compromising", "avoiding", "accomodating")))
+# now we want to create vectors for each of the 5 scores for each user
+# the scoring algorithm below came from the TK-CI booklet scoring page
+# There are 2 answer choices for each question (A,B)
+# Each answer corresponds to one of the 5 categories "compete", "collaborate", "compromise", "avoid", "accomodate"
+# Each answer inscreases the corresponding category score by 1
+# This means each person gets 5 scores, which can be mapped to percentiles
+# percentile mapping is in the booklet as well
+for (i in 1:nrow(tkci)){
+  if (tkci[i,2] == "B") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else if (tkci[i,2] == "A") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else{print("error")}
+  if (tkci[i,3] == "B") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else if (tkci[i,3] == "A") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else{print("error")}
+  if (tkci[i,4] == "B") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else if (tkci[i,4] == "A") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else{print("error")}
+  if (tkci[i,5] == "B") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else if (tkci[i,5] == "A") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else{print("error")}
+  if (tkci[i,6] == "B") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else if (tkci[i,6] == "A") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else{print("error")}
+  if (tkci[i,7] == "B") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else if (tkci[i,7] == "A") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else{print("error")}
+  if (tkci[i,8] == "B") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else if (tkci[i,8] == "A") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else{print("error")}
+  if (tkci[i,9] == "B") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else if (tkci[i,9] == "A") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else{print("error")}
+  if (tkci[i,10] == "B") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else if (tkci[i,10] == "A") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else{print("error")}
+  if (tkci[i,11] == "B") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else if (tkci[i,11] == "A") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else{print("error")}
+  if (tkci[i,12] == "B") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else if (tkci[i,12] == "A") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else{print("error")}
+  if (tkci[i,13] == "B") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else if (tkci[i,13] == "A") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else{print("error")}
+  if (tkci[i,14] == "B") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else if (tkci[i,14] == "A") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else{print("error")}
+  if (tkci[i,15] == "B") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else if (tkci[i,15] == "A") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else{print("error")}
+  if (tkci[i,16] == "B") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else if (tkci[i,16] == "A") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else{print("error")}
+  if (tkci[i,17] == "B") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else if (tkci[i,17] == "A") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else{print("error")}
+  if (tkci[i,18] == "B") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else if (tkci[i,18] == "A") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else{print("error")}
+  if (tkci[i,19] == "B") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else if (tkci[i,19] == "A") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else{print("error")}
+  if (tkci[i,20] == "B") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else if (tkci[i,20] == "A") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else{print("error")}
+  if (tkci[i,21] == "B") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else if (tkci[i,21] == "A") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else{print("error")}
+  if (tkci[i,22] == "B") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else if (tkci[i,22] == "A") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else{print("error")}
+  if (tkci[i,23] == "B") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else if (tkci[i,23] == "A") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else{print("error")}
+  if (tkci[i,24] == "B") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else if (tkci[i,24] == "A") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else{print("error")}
+  if (tkci[i,25] == "B") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else if (tkci[i,25] == "A") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else{print("error")}
+  if (tkci[i,26] == "B") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else if (tkci[i,26] == "A") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else{print("error")}
+  if (tkci[i,27] == "B") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else if (tkci[i,27] == "A") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else{print("error")}
+  if (tkci[i,28] == "B") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } else if (tkci[i,28] == "A") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else{print("error")}
+  if (tkci[i,29] == "B") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else if (tkci[i,29] == "A") {
+    scoring_matrix[i,1] = scoring_matrix[i,1] + 1
+  } else{print("error")}
+  if (tkci[i,30] == "B") {
+    scoring_matrix[i,4] = scoring_matrix[i,4] + 1
+  } else if (tkci[i,30] == "A") {
+    scoring_matrix[i,3] = scoring_matrix[i,3] + 1
+  } else{print("error")}
+  if (tkci[i,31] == "B") {
+    scoring_matrix[i,2] = scoring_matrix[i,2] + 1
+  } else if (tkci[i,31] == "A") {
+    scoring_matrix[i,5] = scoring_matrix[i,5] + 1
+  } 
+}
+
+scoring_matrix <- as.data.frame(scoring_matrix)
+
+# now this code below will return the category in which the person scored the highest
+trait <- c()
+for (i in 1:nrow(scoring_matrix)){
+  trait[i] = colnames(scoring_matrix)[which.max(scoring_matrix[i,])]
+}
+trait <- as.data.frame(trait)
+
+# returning the percentiles will require another loop
+# plotting the distribution of all of these will also require some more work
+percent_matrix <- matrix("N/A", nrow = nrow(tkci), ncol = 5, 
+                         dimnames = list(c(), c("compete", "collaborate", "compromise", "avoid", "accomodate")))
+# need to generate it column by column
+for(i in 1:nrow(scoring_matrix)){
+  if(scoring_matrix[i,1] > 6){
+    percent_matrix[i,1] <- "Top 25% Compete"
+  }
+  if(scoring_matrix[i,1] > 3 & scoring_matrix[i,1] <= 6 ){
+    percent_matrix[i,1] <- "Middle 50% Compete"
+  }
+  if(scoring_matrix[i,1] <= 3){
+    percent_matrix[i,1] <- "Bottom 25% Compete"
+  }
+  ########
+  if(scoring_matrix[i,2] > 8){
+    percent_matrix[i,2] <- "Top 25% Collaborate"
+  }
+  if(scoring_matrix[i,2] > 4 & scoring_matrix[i,2] <= 8 ){
+    percent_matrix[i,2] <- "Middle 50% Collaborate"
+  }
+  if(scoring_matrix[i,2] <= 4){
+    percent_matrix[i,2] <- "Bottom 25% Collaborate"
+  }
+  ########
+  if(scoring_matrix[i,3] > 9){
+    percent_matrix[i,3] <- "Top 25% Compromise"
+  }
+  if(scoring_matrix[i,3] > 6 & scoring_matrix[i,3] <= 9 ){
+    percent_matrix[i,3] <- "Middle 50% Compromise"
+  }
+  if(scoring_matrix[i,3] <= 6){
+    percent_matrix[i,3] <- "Bottom 25% Compromise"
+  }
+  ########
+  if(scoring_matrix[i,4] > 7){
+    percent_matrix[i,4] <- "Top 25 Avoid%"
+  }
+  if(scoring_matrix[i,4] > 4 & scoring_matrix[i,4] <= 7 ){
+    percent_matrix[i,4] <- "Middle 50% Avoid"
+  }
+  if(scoring_matrix[i,4] <= 4){
+    percent_matrix[i,4] <- "Bottom 25% Avoid"
+  }
+  ########
+  if(scoring_matrix[i,5] > 6){
+    percent_matrix[i,5] <- "Top 25% Accomodate"
+  }
+  if(scoring_matrix[i,5] > 3 & scoring_matrix[i,5] <= 6 ){
+    percent_matrix[i,5] <- "Middle 50% Accomodate"
+  }
+  if(scoring_matrix[i,5] <= 3){
+    percent_matrix[i,5] <- "Bottom 25% Accomodate"
+  }
+  else{print("error")}
+}
+
+percent_matrix <- as.data.frame(percent_matrix)
+
+##################################################################################
+##################################################################################
+##################################################################################
+# 3 things returned from the algorithm: scoring_matrix, trait and percent_matrix
+
+output <- cbind(tkci, trait, percent_matrix) %>% select(c(1,32:37))
+
+## now some visualizations of the aggregated and anonomized results
+
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+ggplot(output, aes(trait)) + geom_bar(aes(fill = trait))
+
+output %>%
+  group_by(trait) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~trait, values = ~count, marker = list(colors=gg_color_hue(nlevels(output$trait)))) %>%
+  add_pie(hole = 0.6) %>%
+  layout(showlegend = T,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+         
+  output %>%
+  group_by(compete) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~compete, values = ~count, marker = list(colors=c("A9B7FF", "6A83FF", "2D4FFE"))) %>%
+  add_pie(hole = 0.6) %>%
+  layout(title = "Competitive percentiles",  showlegend = T,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+         
+  output %>%
+  group_by(compromise) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~compromise, values = ~count, marker = list(colors=c("EEAAFC", "DF62F9", "D100FD"))) %>%
+  add_pie(hole = 0.6) %>%
+  layout(title = "Compromise percentiles",  showlegend = T,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+         
+         output %>%
+  group_by(avoid) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~avoid, values = ~count, marker = list(colors=c("9FFBAA", "5AFD6E", "00FF1F"))) %>%
+  add_pie(hole = 0.6) %>%
+  layout(title = "Avoiding percentiles",  showlegend = T,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+         
+         output %>%
+  group_by(accomodate) %>%
+  summarize(count = n()) %>%
+  plot_ly(labels = ~accomodate, values = ~count, marker = list(colors=c("FFA1A1", "FF6F6F", "FF4747"))) %>%
+  add_pie(hole = 0.6) %>%
+  layout(title = "Accomodating percentiles",  showlegend = T,
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
